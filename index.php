@@ -1,32 +1,40 @@
 <?php
   include_once('SimplePie.compiled.php');
   header('Content-type: text/xml; charset=utf-8');
+  header('Access-Control-Allow-Origin: *');
 
   $conf = include('conf.php');
+
+  // send res
+  if (file_exists('cache/feed.xml')) {
+    readfile('cache/feed.xml');
+    flush();
+  }
+
   $feeds = file('./feeds');
 
-  echo '<?xml version="1.0" encoding="UTF-8"?>';
-  echo '<rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:og="http://ogp.me/ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:schema="http://schema.org/" xmlns:sioc="http://rdfs.org/sioc/ns#" xmlns:sioct="http://rdfs.org/sioc/types#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" version="2.0">';
-  echo '<channel>';
-  echo "<title>{$conf['title']}</title>";
-  echo "<link>{$conf['link']}</link>";
-  echo "<description>{$conf['description']}</description>";
-  echo "<language>{$conf['lang']}</language>";
+  $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>';
+  $rss .= "<title>{$conf['title']}</title>";
+  $rss .= "<link>{$conf['link']}</link>";
+  $rss .= "<description>{$conf['description']}</description>";
+  $rss .= "<language>{$conf['lang']}</language>";
 
-  $feed = new SimplePie(); // Create a new instance of SimplePie
-
+  $feed = new SimplePie();
   $feed->set_feed_url($feeds);
-  $feed->set_cache_duration (600);
-  $success = $feed->init();
-
+  $feed->set_cache_duration (3600);
+  $feed->init();
+  $items = [];
   foreach($feed->get_items(0, $conf['itemlimit']) as $item) {
-    echo '<item>';
-    echo '<pubDate>' . $item->get_gmdate() . '</pubDate>';
-    echo '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
-    echo '<link>' . $item->get_permalink() . '</link>';
-    echo '<description><![CDATA[' . $item->get_description() . ']]></description>';
-    echo "</item>";
+    $itemObj = [ "title" => $item->get_title(), "date" => $item->get_date("d M y"),
+      "feed_title" => $item->get_feed()->get_title(), "link" => $item->get_permalink() ];
+    array_push($items, $itemObj);
+    $rss .= '<item><pubDate>' . $item->get_date() . '</pubDate>';
+    $rss .= '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
+    $rss .= '<link>' . $item->get_permalink() . '</link>';
+    $rss .= '<description><![CDATA[' . $item->get_description() . ']]></description></item>';
   }
-  echo '</channel></rss>';
+  $rss .= '</channel></rss>';
+  file_put_contents('feed.xml', $rss);
+  file_put_contents('feed.json', json_encode($items));
 ?>
 
