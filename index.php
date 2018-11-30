@@ -6,8 +6,8 @@
   $conf = include('conf.php');
 
   // send res
-  if (file_exists('cache/feed.xml')) {
-    readfile('cache/feed.xml');
+  if (file_exists('feed.xml')) {
+    readfile('feed.xml');
     flush();
   }
 
