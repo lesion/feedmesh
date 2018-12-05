@@ -1,40 +1,45 @@
 <?php
-  include_once('SimplePie.compiled.php');
-  header('Content-type: text/xml; charset=utf-8');
+/**
+ * this script combines multiple feeds into a single feed.
+ * you can specify your feed list inside `./feeds` and some
+ * configuration inside `./conf.php`.
+ *
+ * it use an hackish way to refresh feed asyncronously (see `refresh.php`)
+ **/
+
   header('Access-Control-Allow-Origin: *');
 
-  $conf = include('conf.php');
+  $format = isset($_GET['format']) ? $_GET['format'] : 'xml';
+  $last_refresh = 0;
+  $files = [
+    "xml"  => [ "name" => "feed.xml", "type" => "text/xml" ],
+    "json" => [ "name" => "feed.json", "type" => "application/json" ]
+  ];
 
-  // send res
-  if (file_exists('feed.xml')) {
-    readfile('feed.xml');
-    flush();
+  $cache_file = $files[$format]['name'];
+  $content_type = $files[$format]['type'];
+
+  header("Content-type: $content_type; charset=utf-8");
+  if (file_exists($cache_file)) {
+    readfile($cache_file);
+    $last_refresh = time()-stat($cache_file)['mtime'];
   }
 
-  $feeds = file('./feeds');
+  // refresh feeds if cache expired or absent
+  if ($last_refresh>$conf['cache_duration']/2 or $last_refresh===0) {
 
-  $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>';
-  $rss .= "<title>{$conf['title']}</title>";
-  $rss .= "<link>{$conf['link']}</link>";
-  $rss .= "<description>{$conf['description']}</description>";
-  $rss .= "<language>{$conf['lang']}</language>";
-
-  $feed = new SimplePie();
-  $feed->set_feed_url($feeds);
-  $feed->set_cache_duration (3600);
-  $feed->init();
-  $items = [];
-  foreach($feed->get_items(0, $conf['itemlimit']) as $item) {
-    $itemObj = [ "title" => $item->get_title(), "date" => $item->get_date("d M y"),
-      "feed_title" => $item->get_feed()->get_title(), "link" => $item->get_permalink() ];
-    array_push($items, $itemObj);
-    $rss .= '<item><pubDate>' . $item->get_date() . '</pubDate>';
-    $rss .= '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
-    $rss .= '<link>' . $item->get_permalink() . '</link>';
-    $rss .= '<description><![CDATA[' . $item->get_description() . ']]></description></item>';
+    // call refresh script via curl
+    // using a low timeout
+    $ch = curl_init();
+    $path = dirname($_SERVER['PHP_SELF']);
+    curl_setopt($ch, CURLOPT_URL, "https://{$_SERVER['HTTP_HOST']}$path/refresh.php");
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
+    curl_exec($ch);
+    sleep(0.5);
+    curl_close($ch);
   }
-  $rss .= '</channel></rss>';
-  file_put_contents('feed.xml', $rss);
-  file_put_contents('feed.json', json_encode($items));
+
 ?>
 
