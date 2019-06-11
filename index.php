@@ -7,6 +7,7 @@
  * it use an hackish way to refresh feed asyncronously (see `refresh.php`)
  **/
 
+  $conf = include('conf.php');
   header('Access-Control-Allow-Origin: *');
 
   $format = isset($_GET['format']) ? $_GET['format'] : 'xml';
