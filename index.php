@@ -33,7 +33,8 @@
     // using a low timeout
     $ch = curl_init();
     $path = dirname($_SERVER['PHP_SELF']);
-    curl_setopt($ch, CURLOPT_URL, "https://{$_SERVER['HTTP_HOST']}$path/refresh.php");
+    if($path === '/') $path = '';
+    curl_setopt($ch, CURLOPT_URL, "http://{$_SERVER['HTTP_HOST']}$path/refresh.php");
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
