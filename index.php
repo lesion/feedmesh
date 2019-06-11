@@ -36,6 +36,7 @@
     if($path === '/') $path = '';
     curl_setopt($ch, CURLOPT_URL, "http://{$_SERVER['HTTP_HOST']}$path/refresh.php");
     curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT_MS, 100);
     curl_exec($ch);
