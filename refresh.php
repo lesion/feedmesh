@@ -52,7 +52,7 @@
       $rss .= '<item><pubDate>' . $item->get_date() . '</pubDate>';
       $rss .= '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
       $rss .= '<link>' . $item->get_permalink() . '</link>';
-      $rss .= '<guid isPermaLink="false">' . $item->get_id('guid') . '</guid>';
+      $rss .= '<guid isPermaLink="false">' . $item->get_id() . '</guid>';
       $rss .= '<description><![CDATA[' . $item->get_description() . ']]></description></item>';
     }
     $rss .= '</channel></rss>';
