@@ -45,11 +45,14 @@
     $items = [];
     foreach($feed->get_items(0, $conf['itemlimit']) as $item) {
       $itemObj = [ "title" => $item->get_title(), "date" => $item->get_date("d M y"),
-        "feed_title" => $item->get_feed()->get_title(), "link" => $item->get_permalink() ];
+          "feed_title" => $item->get_feed()->get_title(), "link" => $item->get_permalink(),
+          "guid" => $item->get_id()
+      ];
       array_push($items, $itemObj);
       $rss .= '<item><pubDate>' . $item->get_date() . '</pubDate>';
       $rss .= '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
       $rss .= '<link>' . $item->get_permalink() . '</link>';
+      $rss .= '<guid isPermaLink="false">' . $item->get_id('guid') . '</guid>';
       $rss .= '<description><![CDATA[' . $item->get_description() . ']]></description></item>';
     }
     $rss .= '</channel></rss>';
