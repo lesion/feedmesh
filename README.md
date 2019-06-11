@@ -10,6 +10,10 @@ configuration inside `./conf.php`.
 - supports xml and json format (using `format` parameter, default is xml)
 - it use an hackish way to refresh feed asyncronously (see `refresh.php`)
 
-
 Made with :heart: by [_TO*hacklab](https://autistici.org/underscore)
 
+## hacking
+
+    apt-get install php-xml php-cli php-curl
+    php refresh.php
+    cat feeds.json

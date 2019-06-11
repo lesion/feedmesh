@@ -57,6 +57,10 @@
     file_put_contents('feed.json', json_encode($items));
  }
 
- register_shutdown_function('run_me_on_disconnect');
+if(php_sapi_name() == "cli") {
+    run_me_on_disconnect();
+} else {
+    register_shutdown_function('run_me_on_disconnect');
+}
 
 ?>
