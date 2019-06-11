@@ -29,7 +29,6 @@
 
     // list of feeds to merge...
     $feeds = file('./feeds');
-
     $rss = '<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel>';
     $rss .= "<title>{$conf['title']}</title>";
     $rss .= "<link>{$conf['link']}</link>";
@@ -40,6 +39,9 @@
     $feed->set_feed_url($feeds);
     $feed->set_cache_duration($conf['cache_duration']);
     $feed->init();
+    if ($feed->error()) {
+      echo $feed->error();
+    }
     $items = [];
     foreach($feed->get_items(0, $conf['itemlimit']) as $item) {
       $itemObj = [ "title" => $item->get_title(), "date" => $item->get_date("d M y"),
@@ -53,8 +55,8 @@
     $rss .= '</channel></rss>';
     file_put_contents('feed.xml', $rss);
     file_put_contents('feed.json', json_encode($items));
-  }
+ }
 
-  register_shutdown_function('run_me_on_disconnect');
+ register_shutdown_function('run_me_on_disconnect');
 
 ?>
