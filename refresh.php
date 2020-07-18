@@ -49,7 +49,7 @@
           "guid" => $item->get_id()
       ];
       array_push($items, $itemObj);
-      $rss .= '<item><pubDate>' . $item->get_date() . '</pubDate>';
+      $rss .= '<item><pubDate>' . $item->get_date('r') . '</pubDate>';
       $rss .= '<title>[' . $item->get_feed()->get_title() . '] ' . $item->get_title() . '</title>';
       $rss .= '<link>' . $item->get_permalink() . '</link>';
       $rss .= '<guid isPermaLink="false">' . $item->get_id() . '</guid>';
