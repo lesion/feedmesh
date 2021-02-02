@@ -40,6 +40,7 @@
     $feed->set_cache_duration($conf['cache_duration']);
     $feed->init();
     if ($feed->error()) {
+      file_put_contents('error.log', $feed->error());
       echo $feed->error();
     }
     $items = [];
